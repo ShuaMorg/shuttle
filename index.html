@@ -98,7 +98,7 @@
                 }
             }
 
-            if (Math.random() < 0.005) { // Reduced frequency of obstacles further
+            if (Math.random() < 0.0025) { // Reduced frequency of obstacles further
                 const gap = 200; // Increased the height of the gap
                 const obstacleHeight = Math.random() * (canvas.height - gap - 100) + 50;
                 const obstacleY = Math.random() * (canvas.height - gap - obstacleHeight);
@@ -112,7 +112,20 @@
             }
         }
 
+        function openFullscreen() {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.mozRequestFullScreen) { // Firefox
+                document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
+                document.documentElement.msRequestFullscreen();
+            }
+        }
+
         function startGame() {
+            openFullscreen(); // Request fullscreen mode
             shuttleY = canvas.height / 2;
             obstacles = [];
             gameOver = false;
@@ -145,12 +158,10 @@
                 function controlShuttle() {
                     const soundLevel = getSoundLevel();
                     if (soundLevel > 10) { // Lower the threshold to 10
-    shuttleY -= (soundLevel - 10) / 5; // Increase the impact by decreasing the divisor
-} else {
-    shuttleY += 3; // Adjusted for quicker fall
-}
-                
-             
+                        shuttleY -= (soundLevel - 10) / 5; // Increase the impact by decreasing the divisor
+                    } else {
+                        shuttleY += 3; // Adjusted for quicker fall
+                    }
                     if (shuttleY < 20) shuttleY = 20;
                     if (shuttleY > canvas.height - 20) shuttleY = canvas.height - 20;
 
@@ -166,6 +177,3 @@
     </script>
 </body>
 </html>
-
-
-
