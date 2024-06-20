@@ -194,7 +194,13 @@
                     }
                 }
 
-                controlShuttle(); // Start the shuttle control loop initially
+                startButton.addEventListener('click', () => {
+                    controlShuttle(); // Ensure controlShuttle is called on game start
+                });
+                resetButton.addEventListener('click', () => {
+                    controlShuttle(); // Ensure controlShuttle is called on reset
+                });
+
             })
             .catch(err => console.error('Error accessing microphone: ', err));
     </script>
