@@ -29,20 +29,30 @@
         #startButton {
             display: block;
         }
+        #score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #39ff14;
+            font-size: 24px;
+        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
     <button id="startButton" class="gameButton">Start</button>
     <button id="resetButton" class="gameButton">Reset</button>
+    <div id="score">Score: 0</div>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const context = canvas.getContext('2d');
         const startButton = document.getElementById('startButton');
         const resetButton = document.getElementById('resetButton');
+        const scoreDisplay = document.getElementById('score');
         let shuttleY = canvas.height / 2;
         let obstacles = [];
         let gameOver = false;
+        let score = 0;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -95,6 +105,11 @@
 
             for (let i = 0; i < obstacles.length; i++) {
                 obstacles[i].x -= 2;
+                if (!obstacles[i].passed && obstacles[i].x < 50) {
+                    obstacles[i].passed = true;
+                    score++;
+                    scoreDisplay.textContent = `Score: ${score}`;
+                }
                 drawObstacle(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
 
                 if (obstacles[i].x + obstacles[i].width < 0) {
@@ -108,8 +123,8 @@
                 const obstacleHeight = Math.random() * (canvas.height - gap - 100) + 50;
                 const obstacleY = Math.random() * (canvas.height - gap - obstacleHeight);
 
-                obstacles.push({ x: canvas.width, y: 0, width: 30, height: obstacleY });
-                obstacles.push({ x: canvas.width, y: obstacleY + gap, width: 30, height: canvas.height - (obstacleY + gap) });
+                obstacles.push({ x: canvas.width, y: 0, width: 30, height: obstacleY, passed: false });
+                obstacles.push({ x: canvas.width, y: obstacleY + gap, width: 30, height: canvas.height - (obstacleY + gap), passed: false });
             }
 
             if (!gameOver) {
@@ -136,6 +151,8 @@
             shuttleY = canvas.height / 2;
             obstacles = [];
             gameOver = false;
+            score = 0;
+            scoreDisplay.textContent = `Score: ${score}`;
             updateGame();
             controlShuttle(); // Ensure controlShuttle is called on reset
         }
