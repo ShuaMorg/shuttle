@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Shuttle Game</title>
+    <title>Space Shuttle Game</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            background-color: black;
+            background: black;
         }
         canvas {
             display: block;
@@ -19,122 +19,142 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 20px;
-            font-size: 20px;
-            color: neon;
+            padding: 10px 20px;
+            color: neon green;
+            font-size: 24px;
+            border: 2px solid neon green;
             background: black;
-            border: 2px solid neon;
-            border-radius: 10px;
             cursor: pointer;
         }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
-    <button id="resetButton" onclick="resetGame()">Reset Game</button>
-
+    <button id="resetButton">Reset</button>
     <script>
         const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
+        const context = canvas.getContext('2d');
         const resetButton = document.getElementById('resetButton');
-
         let shuttleY = canvas.height / 2;
-        const shuttleWidth = 50;
-        const shuttleHeight = 30;
-        const obstacles = [];
-        let isGameOver = false;
+        let obstacles = [];
+        let gameOver = false;
 
-        // Resize the canvas to fill browser window dynamically
-        window.addEventListener('resize', resizeCanvas, false);
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-        function resizeCanvas() {
+        window.addEventListener('resize', () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-
-        // Sound detection
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const analyser = audioContext.createAnalyser();
-                analyser.fftSize = 256;
-                const source = audioContext.createMediaStreamSource(stream);
-                source.connect(analyser);
-                const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-                function detectSound() {
-                    analyser.getByteTimeDomainData(dataArray);
-                    const amplitude = Math.max(...dataArray) - 128;
-                    shuttleY = canvas.height - (amplitude * 3);
-                    if (!isGameOver) {
-                        requestAnimationFrame(detectSound);
-                    }
-                }
-                detectSound();
-            });
+        });
 
         function drawShuttle() {
-            ctx.strokeStyle = 'neon';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(10, shuttleY);
-            ctx.lineTo(60, shuttleY + 15);
-            ctx.lineTo(10, shuttleY + 30);
-            ctx.closePath();
-            ctx.stroke();
+            context.beginPath();
+            context.moveTo(50, shuttleY - 10);
+            context.lineTo(70, shuttleY);
+            context.lineTo(50, shuttleY + 10);
+            context.closePath();
+            context.strokeStyle = 'neon green';
+            context.stroke();
         }
 
-        function spawnObstacle() {
-            const obstacleHeight = Math.random() * (canvas.height / 2);
-            obstacles.push({
-                x: canvas.width,
-                y: Math.random() < 0.5 ? 0 : canvas.height - obstacleHeight,
-                width: 20,
-                height: obstacleHeight
-            });
-        }
-
-        function drawObstacles() {
-            ctx.strokeStyle = 'neon';
-            ctx.lineWidth = 2;
-            obstacles.forEach(obstacle => {
-                ctx.strokeRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-                obstacle.x -= 5;
-            });
+        function drawObstacle(x, y, width, height) {
+            context.beginPath();
+            context.rect(x, y, width, height);
+            context.strokeStyle = 'neon green';
+            context.stroke();
         }
 
         function detectCollision() {
-            for (let obstacle of obstacles) {
-                if (obstacle.x < 60 && obstacle.x + obstacle.width > 10 &&
-                    ((obstacle.y === 0 && shuttleY < obstacle.height) || 
-                    (obstacle.y !== 0 && shuttleY + 30 > obstacle.y))) {
-                    isGameOver = true;
-                    resetButton.style.display = 'block';
+            for (let i = 0; i < obstacles.length; i++) {
+                const obs = obstacles[i];
+                if (50 < obs.x + obs.width && 70 > obs.x && shuttleY - 10 < obs.y + obs.height && shuttleY + 10 > obs.y) {
+                    return true;
                 }
+            }
+            return false;
+        }
+
+        function updateGame() {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (detectCollision()) {
+                gameOver = true;
+                resetButton.style.display = 'block';
+                return;
+            }
+
+            drawShuttle();
+
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].x -= 2;
+                drawObstacle(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+
+                if (obstacles[i].x + obstacles[i].width < 0) {
+                    obstacles.splice(i, 1);
+                    i--;
+                }
+            }
+
+            if (Math.random() < 0.02) {
+                const height = Math.random() * 100 + 50;
+                const y = Math.random() * (canvas.height - height);
+                obstacles.push({ x: canvas.width, y: y, width: 30, height: height });
+            }
+
+            if (!gameOver) {
+                requestAnimationFrame(updateGame);
             }
         }
 
-        function gameLoop() {
-            if (isGameOver) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawShuttle();
-            drawObstacles();
-            detectCollision();
-
-            requestAnimationFrame(gameLoop);
-        }
-
-        function resetGame() {
-            isGameOver = false;
+        function startGame() {
             shuttleY = canvas.height / 2;
-            obstacles.length = 0;
+            obstacles = [];
+            gameOver = false;
             resetButton.style.display = 'none';
-            gameLoop();
+            updateGame();
         }
 
-        setInterval(spawnObstacle, 2000);
-        gameLoop();
+        resetButton.addEventListener('click', startGame);
+
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                const audioContext = new AudioContext();
+                const analyser = audioContext.createAnalyser();
+                const microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+
+                function getSoundLevel() {
+                    analyser.getByteFrequencyData(dataArray);
+                    let values = 0;
+                    for (let i = 0; i < bufferLength; i++) {
+                        values += dataArray[i];
+                    }
+                    return values / bufferLength;
+                }
+
+                function controlShuttle() {
+                    const soundLevel = getSoundLevel();
+                    if (soundLevel > 20) {
+                        shuttleY -= (soundLevel - 20) / 10;
+                    } else {
+                        shuttleY += 1;
+                    }
+                    if (shuttleY < 10) shuttleY = 10;
+                    if (shuttleY > canvas.height - 10) shuttleY = canvas.height - 10;
+
+                    if (!gameOver) {
+                        requestAnimationFrame(controlShuttle);
+                    }
+                }
+
+                controlShuttle();
+                startGame();
+            })
+            .catch(err => console.error('Error accessing microphone: ', err));
     </script>
 </body>
 </html>
+
