@@ -144,11 +144,13 @@
 
                 function controlShuttle() {
                     const soundLevel = getSoundLevel();
-                    if (soundLevel > 20) {
-                        shuttleY -= (soundLevel - 20) / 10;
-                    } else {
-                        shuttleY += 3; // Adjusted for quicker fall
-                    }
+                    if (soundLevel > 10) { // Lower the threshold to 10
+    shuttleY -= (soundLevel - 10) / 5; // Increase the impact by decreasing the divisor
+} else {
+    shuttleY += 3; // Adjusted for quicker fall
+}
+                
+             
                     if (shuttleY < 20) shuttleY = 20;
                     if (shuttleY > canvas.height - 20) shuttleY = canvas.height - 20;
 
