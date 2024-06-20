@@ -13,7 +13,7 @@
         canvas {
             display: block;
         }
-        #resetButton {
+        .gameButton {
             display: none;
             position: absolute;
             top: 50%;
@@ -26,14 +26,19 @@
             background: black;
             cursor: pointer;
         }
+        #startButton {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
-    <button id="resetButton">Reset</button>
+    <button id="startButton" class="gameButton">Start</button>
+    <button id="resetButton" class="gameButton">Reset</button>
     <script>
         const canvas = document.getElementById('gameCanvas');
         const context = canvas.getContext('2d');
+        const startButton = document.getElementById('startButton');
         const resetButton = document.getElementById('resetButton');
         let shuttleY = canvas.height / 2;
         let obstacles = [];
@@ -99,7 +104,7 @@
             }
 
             if (Math.random() < 0.0025) { // Reduced frequency of obstacles further
-                const gap = 200; // Increased the height of the gap
+                const gap = 150; // Increased the height of the gap
                 const obstacleHeight = Math.random() * (canvas.height - gap - 100) + 50;
                 const obstacleY = Math.random() * (canvas.height - gap - obstacleHeight);
 
@@ -126,14 +131,16 @@
 
         function startGame() {
             openFullscreen(); // Request fullscreen mode
+            startButton.style.display = 'none';
+            resetButton.style.display = 'none';
             shuttleY = canvas.height / 2;
             obstacles = [];
             gameOver = false;
-            resetButton.style.display = 'none';
             updateGame();
             controlShuttle(); // Ensure controlShuttle is called on reset
         }
 
+        startButton.addEventListener('click', startGame);
         resetButton.addEventListener('click', startGame);
 
         navigator.mediaDevices.getUserMedia({ audio: true })
@@ -171,7 +178,6 @@
                 }
 
                 controlShuttle(); // Start the shuttle control loop initially
-                startGame(); // Start the game loop initially
             })
             .catch(err => console.error('Error accessing microphone: ', err));
     </script>
