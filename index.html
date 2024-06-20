@@ -53,6 +53,7 @@
         let obstacles = [];
         let gameOver = false;
         let score = 0;
+        let holdingTap = false;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -180,14 +181,16 @@
                 }
 
                 function controlShuttle() {
-                    const soundLevel = getSoundLevel();
-                    if (soundLevel > 10) { // Lower the threshold to 10
-                        shuttleY -= (soundLevel - 10) / 5; // Increase the impact by decreasing the divisor
-                    } else {
-                        shuttleY += 3; // Adjusted for quicker fall
+                    if (!holdingTap) {
+                        const soundLevel = getSoundLevel();
+                        if (soundLevel > 10) { // Lower the threshold to 10
+                            shuttleY -= (soundLevel - 10) / 5; // Increase the impact by decreasing the divisor
+                        } else {
+                            shuttleY += 3; // Adjusted for quicker fall
+                        }
+                        if (shuttleY < 20) shuttleY = 20;
+                        if (shuttleY > canvas.height - 20) shuttleY = canvas.height - 20;
                     }
-                    if (shuttleY < 20) shuttleY = 20;
-                    if (shuttleY > canvas.height - 20) shuttleY = canvas.height - 20;
 
                     if (!gameOver) {
                         requestAnimationFrame(controlShuttle);
@@ -203,6 +206,15 @@
 
             })
             .catch(err => console.error('Error accessing microphone: ', err));
+
+        canvas.addEventListener('touchstart', () => {
+            holdingTap = true;
+        });
+
+        canvas.addEventListener('touchend', () => {
+            holdingTap = false;
+        });
+
     </script>
 </body>
 </html>
