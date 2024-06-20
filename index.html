@@ -165,4 +165,59 @@
         navigator.mediaDevices.getUserMedia({ audio: true })
             .then(stream => {
                 const audioContext = new AudioContext();
-                const
+                const analyser = audioContext.createAnalyser();
+                const microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+
+                function getSoundLevel() {
+                    analyser.getByteFrequencyData(dataArray);
+                    let values = 0;
+                    for (let i = 0; i < bufferLength; i++) {
+                        values += dataArray[i];
+                    }
+                    return values / bufferLength;
+                }
+
+                function controlShuttle() {
+                    if (!holdingTap) {
+                        const soundLevel = getSoundLevel();
+                        if (soundLevel > 10) { // Lower the threshold to 10
+                            shuttleY -= (soundLevel - 10) / 5; // Increase the impact by decreasing the divisor
+                        } else {
+                            shuttleY += 3; // Adjusted for quicker fall
+                        }
+                        if (shuttleY < 20) shuttleY = 20;
+                        if (shuttleY > canvas.height - 20) shuttleY = canvas.height - 20;
+                    }
+
+                    if (!gameOver) {
+                        requestAnimationFrame(controlShuttle);
+                    }
+                }
+
+                startButton.addEventListener('click', () => {
+                    controlShuttle(); // Ensure controlShuttle is called on game start
+                });
+                resetButton.addEventListener('click', () => {
+                    controlShuttle(); // Ensure controlShuttle is called on reset
+                });
+
+            })
+            .catch(err => console.error('Error accessing microphone: ', err));
+
+        canvas.addEventListener('touchstart', (e) => {
+            holdingTap = true;
+            e.preventDefault(); // Prevent default behavior
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            holdingTap = false;
+            e.preventDefault(); // Prevent default behavior
+        });
+
+    </script>
+</body>
+</html>
