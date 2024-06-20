@@ -55,6 +55,7 @@
         let gameOver = false;
         let score = 0;
         let holdingTap = false;
+        let obstacleProbability = 0.0025; // Initial obstacle probability
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -120,7 +121,7 @@
                 }
             }
 
-            if (Math.random() < 0.0025) { // Reduced frequency of obstacles further
+            if (Math.random() < obstacleProbability) { // Use dynamic obstacle probability
                 const gap = 150; // Increased the height of the gap
                 const obstacleHeight = Math.random() * (canvas.height - gap - 100) + 50;
                 const obstacleY = Math.random() * (canvas.height - gap - obstacleHeight);
@@ -155,8 +156,16 @@
             gameOver = false;
             score = 0;
             scoreDisplay.textContent = `Score: ${score}`;
+            obstacleProbability = 0.0025; // Reset obstacle probability
             updateGame();
             controlShuttle(); // Ensure controlShuttle is called on reset
+
+            // Increase obstacle frequency every 10 seconds
+            setInterval(() => {
+                if (!gameOver) {
+                    obstacleProbability *= 1.5; // Increase by 50%
+                }
+            }, 10000);
         }
 
         startButton.addEventListener('click', startGame);
@@ -221,3 +230,4 @@
     </script>
 </body>
 </html>
+
