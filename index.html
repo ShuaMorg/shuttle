@@ -20,9 +20,9 @@
             left: 50%;
             transform: translate(-50%, -50%);
             padding: 10px 20px;
-            color: neon green;
+            color: #39ff14; /* Neon green */
             font-size: 24px;
-            border: 2px solid neon green;
+            border: 2px solid #39ff14;
             background: black;
             cursor: pointer;
         }
@@ -39,35 +39,38 @@
         let obstacles = [];
         let gameOver = false;
 
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        window.addEventListener('resize', () => {
+        function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-        });
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
         function drawShuttle() {
             context.beginPath();
-            context.moveTo(50, shuttleY - 10);
+            context.moveTo(50, shuttleY - 20);
             context.lineTo(70, shuttleY);
-            context.lineTo(50, shuttleY + 10);
+            context.lineTo(50, shuttleY + 20);
+            context.lineTo(60, shuttleY);
             context.closePath();
-            context.strokeStyle = 'neon green';
+            context.strokeStyle = '#39ff14'; // Neon green
+            context.lineWidth = 2;
             context.stroke();
         }
 
         function drawObstacle(x, y, width, height) {
             context.beginPath();
             context.rect(x, y, width, height);
-            context.strokeStyle = 'neon green';
+            context.strokeStyle = '#39ff14'; // Neon green
+            context.lineWidth = 2;
             context.stroke();
         }
 
         function detectCollision() {
             for (let i = 0; i < obstacles.length; i++) {
                 const obs = obstacles[i];
-                if (50 < obs.x + obs.width && 70 > obs.x && shuttleY - 10 < obs.y + obs.height && shuttleY + 10 > obs.y) {
+                if (50 < obs.x + obs.width && 70 > obs.x && shuttleY - 20 < obs.y + obs.height && shuttleY + 20 > obs.y) {
                     return true;
                 }
             }
@@ -142,8 +145,8 @@
                     } else {
                         shuttleY += 1;
                     }
-                    if (shuttleY < 10) shuttleY = 10;
-                    if (shuttleY > canvas.height - 10) shuttleY = canvas.height - 10;
+                    if (shuttleY < 20) shuttleY = 20;
+                    if (shuttleY > canvas.height - 20) shuttleY = canvas.height - 20;
 
                     if (!gameOver) {
                         requestAnimationFrame(controlShuttle);
@@ -157,4 +160,5 @@
     </script>
 </body>
 </html>
+
 
