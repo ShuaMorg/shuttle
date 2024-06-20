@@ -98,10 +98,14 @@
                 }
             }
 
-            if (Math.random() < 0.02) {
-                const height = Math.random() * 100 + 50;
-                const y = Math.random() * (canvas.height - height);
-                obstacles.push({ x: canvas.width, y: y, width: 30, height: height });
+            if (Math.random() < 0.01) {
+const gap = 100; // Set the height of the gap
+const obstacleHeight = Math.random() * (canvas.height - gap - 100) + 50;
+const obstacleY = Math.random() * (canvas.height - gap - obstacleHeight);
+
+obstacles.push({ x: canvas.width, y: 0, width: 30, height: obstacleY });
+obstacles.push({ x: canvas.width, y: obstacleY + gap, width: 30, height: canvas.height - (obstacleY + gap) });
+
             }
 
             if (!gameOver) {
