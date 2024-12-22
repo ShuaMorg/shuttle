@@ -122,13 +122,13 @@
             }
 
             if (Math.random() < obstacleProbability) { // Use dynamic obstacle probability
-                const gap = 150; // Increased the height of the gap
-                const obstacleHeight = Math.random() * (canvas.height - gap - 100) + 50;
-                const obstacleY = Math.random() * (canvas.height - gap - obstacleHeight);
+    const gap = 300; // Doubled the height of the gap (previously 150)
+    const obstacleHeight = Math.random() * (canvas.height - gap - 100) + 50;
+    const obstacleY = Math.random() * (canvas.height - gap - obstacleHeight);
 
-                obstacles.push({ x: canvas.width, y: 0, width: 30, height: obstacleY, passed: false });
-                obstacles.push({ x: canvas.width, y: obstacleY + gap, width: 30, height: canvas.height - (obstacleY + gap), passed: false });
-            }
+    obstacles.push({ x: canvas.width, y: 0, width: 30, height: obstacleY, passed: false });
+    obstacles.push({ x: canvas.width, y: obstacleY + gap, width: 30, height: canvas.height - (obstacleY + gap), passed: false });
+}
 
             if (!gameOver) {
                 requestAnimationFrame(updateGame);
